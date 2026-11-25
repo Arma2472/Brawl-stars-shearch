@@ -1,0 +1,6 @@
+{
+  "name": "BrawlStats Tracker",
+  "description": "Tableau de bord Brawl Stars pour consulter les statistiques d'un joueur, ses brawlers et ses 10 dernières parties via proxy IP fixe.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

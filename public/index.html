@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BrawlStats — Statistiques Brawl Stars</title>
+    <meta
+      name="description"
+      content="Consultez le profil, les trophées, les brawlers et les 10 dernières parties d'un joueur Brawl Stars."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <a href="#top" class="brand">BrawlStats</a>
+
+        <nav class="nav-links" aria-label="Navigation principale">
+          <a href="#profil" class="nav-link">Profil</a>
+          <a href="#historique" class="nav-link">Historique</a>
+          <a href="#brawlers" class="nav-link">Brawlers</a>
+        </nav>
+
+        <button type="button" id="focus-search-btn" class="btn-secondary">
+          Rechercher un tag
+        </button>
+      </div>
+    </header>
+
+    <main id="top" class="container main-content">
+      <section class="search-section" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <h1 id="hero-title" class="hero-title">
+            Statistiques de joueur Brawl Stars
+          </h1>
+          <p class="hero-subtitle">
+            Consultez les trophées, le club, les brawlers débloqués et les 10
+            dernières parties à partir d'un tag joueur officiel.
+          </p>
+        </div>
+
+        <form id="search-form" class="search-form" novalidate>
+          <label for="tag-input" class="sr-only">Tag joueur Brawl Stars</label>
+          <div class="input-shell">
+            <span class="input-prefix" aria-hidden="true">#</span>
+            <input
+              id="tag-input"
+              name="tag"
+              type="text"
+              inputmode="text"
+              autocomplete="off"
+              autocapitalize="characters"
+              spellcheck="false"
+              placeholder="Entrez un tag joueur (ex: 2PP)"
+              maxlength="18"
+              required
+            />
+          </div>
+          <button type="submit" id="search-submit" class="btn-primary">
+            <span class="btn-label">Rechercher</span>
+          </button>
+        </form>
+
+        <div class="quick-tags" aria-label="Exemples de tags">
+          <span class="quick-label">Exemples :</span>
+          <button type="button" class="quick-tag-btn" data-tag="2PP">#2PP</button>
+          <button type="button" class="quick-tag-btn" data-tag="8000">#8000</button>
+          <button type="button" class="quick-tag-btn" data-tag="99LY0P">
+            #99LY0P
+          </button>
+        </div>
+      </section>
+
+      <div
+        id="error-banner"
+        class="error-banner hidden"
+        role="alert"
+        aria-live="polite"
+      >
+        <div class="error-text-wrap">
+          <strong class="error-title">Impossible de charger les statistiques</strong>
+          <p id="error-message" class="error-message"></p>
+        </div>
+      </div>
+
+      <section id="empty-state" class="empty-state">
+        <div class="empty-icon" aria-hidden="true">
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.3-4.3" />
+          </svg>
+        </div>
+        <h2>Prêt pour l'analyse</h2>
+        <p>
+          Saisissez le tag d'un joueur (visible sous son icône de profil dans
+          Brawl Stars, par exemple <code>#2PP</code>) pour afficher son palmarès
+          complet et son historique récent.
+        </p>
+      </section>
+
+      <section
+        id="loading-state"
+        class="loading-state hidden"
+        aria-label="Chargement des statistiques"
+      >
+        <div class="skeleton-card skeleton-profile"></div>
+        <div class="skeleton-grid">
+          <div class="skeleton-card skeleton-kpi"></div>
+          <div class="skeleton-card skeleton-kpi"></div>
+          <div class="skeleton-card skeleton-kpi"></div>
+          <div class="skeleton-card skeleton-kpi"></div>
+        </div>
+        <div class="skeleton-card skeleton-list"></div>
+      </section>
+
+      <div id="results-view" class="results-view hidden">
+        <section id="profil" class="profile-section" aria-label="Profil joueur">
+          <div class="profile-header">
+            <div class="avatar-frame">
+              <img
+                id="profile-icon"
+                src=""
+                alt="Icône de profil"
+                referrerpolicy="no-referrer"
+              />
+              <div id="profile-icon-fallback" class="avatar-fallback hidden">
+                BS
+              </div>
+            </div>
+
+            <div class="profile-identity">
+              <h2 id="player-name" class="player-name"></h2>
+              <div class="profile-meta">
+                <span id="player-tag" class="mono-tag"></span>
+                <span aria-hidden="true">·</span>
+                <span id="player-club"></span>
+                <span aria-hidden="true">·</span>
+                <span id="player-level"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="kpi-grid">
+            <div class="kpi-item">
+              <span class="kpi-label">Trophées actuels</span>
+              <strong id="stat-trophies" class="kpi-value accent-gold">0</strong>
+            </div>
+            <div class="kpi-item">
+              <span class="kpi-label">Record de trophées</span>
+              <strong id="stat-highest" class="kpi-value">0</strong>
+            </div>
+            <div class="kpi-item">
+              <span class="kpi-label">Victoires 3v3</span>
+              <strong id="stat-3v3" class="kpi-value">0</strong>
+            </div>
+            <div class="kpi-item" id="kpi-solo-wrap">
+              <span class="kpi-label">Victoires Solo / Duo</span>
+              <strong id="stat-showdown" class="kpi-value">0</strong>
+            </div>
+            <div class="kpi-item">
+              <span class="kpi-label">Brawlers débloqués</span>
+              <strong id="stat-brawlers" class="kpi-value">0</strong>
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="historique"
+          class="section-block"
+          aria-labelledby="history-heading"
+        >
+          <div class="section-header">
+            <div>
+              <h2 id="history-heading" class="section-title">
+                10 dernières parties
+              </h2>
+              <p id="history-summary" class="section-subtitle"></p>
+            </div>
+
+            <div
+              class="segmented-control"
+              role="group"
+              aria-label="Filtrer les parties"
+            >
+              <button
+                type="button"
+                class="segment-btn active"
+                data-battle-filter="all"
+              >
+                Toutes
+              </button>
+              <button
+                type="button"
+                class="segment-btn"
+                data-battle-filter="victory"
+              >
+                Victoires
+              </button>
+              <button
+                type="button"
+                class="segment-btn"
+                data-battle-filter="defeat"
+              >
+                Défaites
+              </button>
+            </div>
+          </div>
+
+          <div id="battlelog-list" class="battlelog-list"></div>
+          <p id="battlelog-empty" class="sub-empty hidden">
+            Aucune partie correspondante dans le journal récent.
+          </p>
+        </section>
+
+        <section
+          id="brawlers"
+          class="section-block"
+          aria-labelledby="brawlers-heading"
+        >
+          <div class="section-header">
+            <div>
+              <h2 id="brawlers-heading" class="section-title">
+                Brawlers débloqués
+              </h2>
+              <p id="brawlers-summary" class="section-subtitle"></p>
+            </div>
+
+            <div class="brawlers-controls">
+              <label for="brawler-filter" class="sr-only"
+                >Filtrer par nom de brawler</label
+              >
+              <input
+                id="brawler-filter"
+                type="search"
+                class="filter-input"
+                placeholder="Filtrer un brawler..."
+              />
+
+              <label for="brawler-sort" class="sr-only"
+                >Trier les brawlers</label
+              >
+              <select id="brawler-sort" class="sort-select">
+                <option value="trophies">Trier : Trophées</option>
+                <option value="power">Trier : Pouvoir</option>
+                <option value="rank">Trier : Rang</option>
+                <option value="name">Trier : Nom</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="brawlers-grid" class="brawlers-grid"></div>
+          <p id="brawlers-empty" class="sub-empty hidden">
+            Aucun brawler ne correspond à votre filtre.
+          </p>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-inner">
+        <span>BrawlStats — Données officielles Brawl Stars via proxy IP fixe</span>
+        <span>Contenu non affilié à Supercell</span>
+      </div>
+    </footer>
+
+    <script src="./app.js" defer></script>
+  </body>
+</html>
