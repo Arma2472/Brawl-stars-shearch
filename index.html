@@ -12,10 +12,437 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #0b0f17;
+        --panel: #121826;
+        --panel-2: #182133;
+        --border: rgba(148, 163, 184, 0.16);
+        --text: #f1f5f9;
+        --muted: #94a3b8;
+        --accent: #fbbf24;
+        --accent-2: #3b82f6;
+        --win: #22c55e;
+        --loss: #ef4444;
+        --draw: #64748b;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: radial-gradient(circle at top, #152036 0%, var(--bg) 55%);
+        color: var(--text);
+        font-family: "DM Sans", system-ui, -apple-system, sans-serif;
+        padding: 28px 16px 48px;
+      }
+
+      .container {
+        max-width: 840px;
+        margin: 0 auto;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 24px;
+      }
+
+      .badge {
+        display: inline-block;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        color: var(--accent);
+        background: rgba(251, 191, 36, 0.12);
+        border: 1px solid rgba(251, 191, 36, 0.28);
+        padding: 4px 10px;
+        border-radius: 999px;
+        margin-bottom: 10px;
+      }
+
+      h1, h2, h3 {
+        font-family: "Outfit", system-ui, sans-serif;
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(1.75rem, 4vw, 2.3rem);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+
+      .subtitle {
+        margin: 8px 0 0;
+        color: var(--muted);
+        font-size: 0.96rem;
+      }
+
+      .search-box {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+
+      .search-box input {
+        flex: 1;
+        padding: 13px 16px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: var(--panel);
+        color: var(--text);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 1rem;
+        outline: none;
+      }
+
+      .search-box input:focus {
+        border-color: var(--accent);
+      }
+
+      .search-box button {
+        padding: 13px 22px;
+        border-radius: 12px;
+        border: none;
+        background: var(--accent);
+        color: #090d16;
+        font-family: "Outfit", sans-serif;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+      }
+
+      .search-box button:hover {
+        filter: brightness(1.05);
+      }
+
+      .status {
+        padding: 13px 16px;
+        border-radius: 12px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        margin-bottom: 18px;
+        font-size: 0.95rem;
+      }
+
+      .status.error {
+        border-color: rgba(239, 68, 68, 0.45);
+        background: rgba(239, 68, 68, 0.12);
+        color: #fecaca;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .profile-card {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 18px;
+        margin-bottom: 14px;
+      }
+
+      .avatar {
+        width: 76px;
+        height: 76px;
+        border-radius: 16px;
+        background: var(--panel-2);
+        border: 1px solid var(--border);
+        object-fit: cover;
+        flex-shrink: 0;
+      }
+
+      .player-tag {
+        font-family: "JetBrains Mono", monospace;
+        color: var(--muted);
+        font-size: 0.9rem;
+        margin: 4px 0;
+      }
+
+      .player-club {
+        margin: 0;
+        font-size: 0.9rem;
+        color: #cbd5e1;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+
+      .stat-card {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px;
+        text-align: center;
+      }
+
+      .stat-label {
+        display: block;
+        color: var(--muted);
+        font-size: 0.82rem;
+        margin-bottom: 6px;
+      }
+
+      .stat-value {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: var(--accent);
+      }
+
+      .section-title {
+        font-size: 1.15rem;
+        margin-bottom: 12px;
+      }
+
+      .battle-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .battle-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-left: 5px solid var(--draw);
+        border-radius: 12px;
+        padding: 14px 16px;
+      }
+
+      .battle-item.victory {
+        border-left-color: var(--win);
+      }
+
+      .battle-item.defeat {
+        border-left-color: var(--loss);
+      }
+
+      .battle-mode {
+        font-weight: 700;
+      }
+
+      .battle-sub {
+        display: block;
+        color: var(--muted);
+        font-size: 0.86rem;
+        margin-top: 3px;
+      }
+
+      .battle-right {
+        text-align: right;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.88rem;
+      }
+
+      .battle-result {
+        font-weight: 700;
+      }
+
+      .battle-delta {
+        display: block;
+        color: var(--muted);
+        font-size: 0.8rem;
+        margin-top: 2px;
+      }
+    </style>
   </head>
-  <body class="bg-[#0B0F17] text-slate-100 antialiased selection:bg-amber-400/20 selection:text-amber-300">
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+  <body>
+    <main class="container">
+      <header class="header">
+        <div class="badge">BRAWL STATS • PROXY IP FIXE</div>
+        <h1>BrawlStats Tracker</h1>
+        <p class="subtitle">Saisis un Tag joueur (ex. <code>#2PP</code> ou <code>2PP</code>) pour afficher son profil et ses 10 dernières parties.</p>
+      </header>
+
+      <form id="search-form" class="search-box">
+        <input
+          id="tag-input"
+          type="text"
+          placeholder="Ex : #2PP9Y8"
+          autocomplete="off"
+          required
+        />
+        <button id="search-btn" type="submit">Rechercher</button>
+      </form>
+
+      <div id="status" class="status hidden"></div>
+
+      <section id="result" class="hidden">
+        <div class="profile-card">
+          <img id="player-icon" class="avatar" src="" alt="Icône de profil du joueur" />
+          <div>
+            <h2 id="player-name"></h2>
+            <p id="player-tag" class="player-tag"></p>
+            <p id="player-club" class="player-club"></p>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-label">Trophées actuels</span>
+            <span id="stat-trophies" class="stat-value">0</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Record trophées</span>
+            <span id="stat-highest" class="stat-value">0</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Victoires 3v3</span>
+            <span id="stat-3v3" class="stat-value">0</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-label">Brawlers</span>
+            <span id="stat-brawlers" class="stat-value">0</span>
+          </div>
+        </div>
+
+        <h3 class="section-title">10 dernières parties</h3>
+        <ul id="battle-list" class="battle-list"></ul>
+      </section>
+    </main>
+
+    <script>
+      // Remplace TON-PROJET par l'URL de ton projet Cloudflare Pages (sans slash final)
+      const API_BASE_URL = "https://TON-PROJET.pages.dev";
+
+      const form = document.getElementById("search-form");
+      const input = document.getElementById("tag-input");
+      const statusEl = document.getElementById("status");
+      const resultEl = document.getElementById("result");
+      const battleListEl = document.getElementById("battle-list");
+
+      function showStatus(msg, isError = false) {
+        statusEl.textContent = msg;
+        statusEl.className = isError ? "status error" : "status";
+        statusEl.classList.remove("hidden");
+      }
+
+      function hideStatus() {
+        statusEl.classList.add("hidden");
+      }
+
+      function normalizeTag(raw) {
+        return raw.trim().toUpperCase().replace(/^#/, "").replace(/\s+/g, "");
+      }
+
+      function findBrawler(battle, cleanTag) {
+        const target = `#${cleanTag}`;
+        const groups = battle.battle?.teams || (battle.battle?.players ? [battle.battle.players] : []);
+        for (const group of groups) {
+          for (const player of group) {
+            if (player.tag === target && player.brawler?.name) {
+              return player.brawler.name;
+            }
+          }
+        }
+        return battle.event?.brawler || "Brawler inconnu";
+      }
+
+      function renderData(profile, battlelog, cleanTag) {
+        const iconId = profile.icon?.id;
+        const iconEl = document.getElementById("player-icon");
+        iconEl.src = iconId
+          ? `https://cdn.brawlify.com/profile-icons/regular/${iconId}.png`
+          : "";
+
+        const nameEl = document.getElementById("player-name");
+        nameEl.textContent = profile.name || "Joueur";
+        if (profile.nameColor && /^[0-9A-Fa-f]{8,10}$/.test(profile.nameColor)) {
+          nameEl.style.color = `#${profile.nameColor.slice(4)}`;
+        } else {
+          nameEl.style.color = "";
+        }
+
+        document.getElementById("player-tag").textContent = profile.tag || `#${cleanTag}`;
+        document.getElementById("player-club").textContent = profile.club?.name
+          ? `Club : ${profile.club.name}`
+          : "Sans club";
+
+        document.getElementById("stat-trophies").textContent = profile.trophies ?? 0;
+        document.getElementById("stat-highest").textContent = profile.highestTrophies ?? 0;
+        document.getElementById("stat-3v3").textContent = profile["3vs3Victories"] ?? 0;
+        document.getElementById("stat-brawlers").textContent = profile.brawlers?.length ?? 0;
+
+        battleListEl.innerHTML = "";
+        const items = (battlelog?.items || []).slice(0, 10);
+
+        if (items.length === 0) {
+          battleListEl.innerHTML = `<li class="battle-item">Aucune partie récente trouvée.</li>`;
+        } else {
+          for (const item of items) {
+            const result = item.battle?.result || "draw";
+            const mode = item.battle?.mode || item.event?.mode || "Mode inconnu";
+            const map = item.event?.map || "Map inconnue";
+            const brawler = findBrawler(item, cleanTag);
+            const delta = item.battle?.trophyChange;
+
+            const resultText =
+              result === "victory" ? "Victoire" : result === "defeat" ? "Défaite" : "Égalité";
+            const deltaText =
+              typeof delta === "number" ? `${delta > 0 ? "+" : ""}${delta} trophées` : "";
+
+            const li = document.createElement("li");
+            li.className = `battle-item ${result}`;
+            li.innerHTML = `
+              <div>
+                <span class="battle-mode">${mode} — ${map}</span>
+                <span class="battle-sub">Brawler : ${brawler}</span>
+              </div>
+              <div class="battle-right">
+                <span class="battle-result">${resultText}</span>
+                <span class="battle-delta">${deltaText}</span>
+              </div>
+            `;
+            battleListEl.appendChild(li);
+          }
+        }
+
+        resultEl.classList.remove("hidden");
+      }
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const cleanTag = normalizeTag(input.value);
+        if (!cleanTag) {
+          showStatus("Entre un Tag joueur valide.", true);
+          return;
+        }
+
+        resultEl.classList.add("hidden");
+        showStatus("Récupération des statistiques en cours...");
+
+        try {
+          const url = `${API_BASE_URL}/api/player?tag=${encodeURIComponent(cleanTag)}`;
+          const response = await fetch(url);
+          const payload = await response.json();
+
+          if (!response.ok) {
+            showStatus(payload.error || "Erreur lors de la récupération des données.", true);
+            return;
+          }
+
+          hideStatus();
+          renderData(payload.profile, payload.battlelog, cleanTag);
+        } catch (err) {
+          showStatus(`Impossible de joindre l'API : ${err.message}`, true);
+        }
+      });
+    </script>
   </body>
 </html>
-
