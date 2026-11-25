@@ -313,12 +313,8 @@
     </div>
 
     <script>
-      // 1) Recommandé : URL de ton proxy Cloudflare Pages (sans slash à la fin)
-      const API_BASE_URL = "https://TON-PROJET.pages.dev";
-
-      // 2) Optionnel : uniquement si tu veux tester direct sans proxy (ne laisse pas ça en public)
-      const DIRECT_API_KEY = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6ImY2NmNjZTE1LTFlNDEtNDczMy05YWUxLTgzOTY3MjZmOTM0NiIsImlhdCI6MTc5NTU5ODg1MSwic3ViIjoiZGV2ZWxvcGVyLzJmNDAwNmZkLWU4ZDUtNDQ0ZC05MmNhLTBhMDA4MmQwNWVmMiIsInNjb3BlcyI6WyJicmF3bHN0YXJzIl0sImxpbWl0cyI6W3sidGllciI6ImRldmVsb3Blci9zaWx2ZXIiLCJ0eXBlIjoidGhyb3R0bGluZyJ9LHsiY2lkcnMiOlsiNDUuNzkuMjE4Ljc5Il0sInR5cGUiOiJjbGllbnQifV19.joOoFtJxDTkxfzOX8j2haJOFHsl1Cqhv3KNCBRcqc0OvmG02IacQPLCUnDbWV2Eq6EeY6CL05wrzdnQhFx8yag";
-      const DIRECT_PROXY_BASE = "https://bsproxy.royaleapi.dev/v1";
+      // URL de ton Cloudflare Worker (sans slash à la fin)
+      const WORKER_URL = "https://brawl-stars-shearch.developpeur634.workers.dev";
 
       const form = document.getElementById("form");
       const tagInput = document.getElementById("tagInput");
@@ -354,26 +350,32 @@
       }
 
       async function fetchPlayerData(tag) {
-        if (DIRECT_API_KEY.trim()) {
-          const headers = { Authorization: `Bearer ${DIRECT_API_KEY.trim()}` };
-          const encoded = `%23${encodeURIComponent(tag)}`;
-          const [pRes, bRes] = await Promise.all([
-            fetch(`${DIRECT_PROXY_BASE}/players/${encoded}`, { headers }),
-            fetch(`${DIRECT_PROXY_BASE}/players/${encoded}/battlelog`, { headers }),
-          ]);
-          const pData = await pRes.json();
-          if (!pRes.ok) {
-            throw new Error(pData.message || `Erreur API (${pRes.status})`);
-          }
-          const bData = bRes.ok ? await bRes.json() : { items: [] };
-          return { profile: pData, battlelog: bData.items || [] };
+        const baseUrl = WORKER_URL.trim().replace(/\/+$/, "");
+        if (!baseUrl || baseUrl.includes("TON-WORKER")) {
+          throw new Error("Configure l'URL de ton Cloudflare Worker dans WORKER_URL.");
         }
 
-        const res = await fetch(`${API_BASE_URL}/api/player?tag=${encodeURIComponent(tag)}`);
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.error || `Erreur serveur (${res.status})`);
+        let res;
+        try {
+          res = await fetch(`${baseUrl}/?tag=${encodeURIComponent(tag)}`);
+        } catch {
+          throw new Error("Impossible de joindre le Worker Cloudflare (réseau ou URL).");
         }
+
+        const rawText = await res.text();
+        let data = null;
+        if (rawText) {
+          try {
+            data = JSON.parse(rawText);
+          } catch {
+            throw new Error(`Réponse non JSON du Worker (${res.status}).`);
+          }
+        }
+
+        if (!res.ok) {
+          throw new Error((data && (data.error || data.message)) || `Erreur API (${res.status})`);
+        }
+
         return data;
       }
 
