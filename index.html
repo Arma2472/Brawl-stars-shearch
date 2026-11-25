@@ -338,7 +338,7 @@
       }
 
       function normalizeTag(raw) {
-        return raw.trim().toUpperCase().replace(/^#/, "").replace(/\s+/g, "");
+        return raw.trim().toUpperCase().replace(/^#+/, "").replace(/\s+/g, "");
       }
 
       function findBrawler(battle, cleanTag) {
@@ -380,69 +380,3 @@
         document.getElementById("stat-brawlers").textContent = profile.brawlers?.length ?? 0;
 
         battleListEl.innerHTML = "";
-        const items = (battlelog?.items || []).slice(0, 10);
-
-        if (items.length === 0) {
-          battleListEl.innerHTML = `<li class="battle-item">Aucune partie récente trouvée.</li>`;
-        } else {
-          for (const item of items) {
-            const result = item.battle?.result || "draw";
-            const mode = item.battle?.mode || item.event?.mode || "Mode inconnu";
-            const map = item.event?.map || "Map inconnue";
-            const brawler = findBrawler(item, cleanTag);
-            const delta = item.battle?.trophyChange;
-
-            const resultText =
-              result === "victory" ? "Victoire" : result === "defeat" ? "Défaite" : "Égalité";
-            const deltaText =
-              typeof delta === "number" ? `${delta > 0 ? "+" : ""}${delta} trophées` : "";
-
-            const li = document.createElement("li");
-            li.className = `battle-item ${result}`;
-            li.innerHTML = `
-              <div>
-                <span class="battle-mode">${mode} — ${map}</span>
-                <span class="battle-sub">Brawler : ${brawler}</span>
-              </div>
-              <div class="battle-right">
-                <span class="battle-result">${resultText}</span>
-                <span class="battle-delta">${deltaText}</span>
-              </div>
-            `;
-            battleListEl.appendChild(li);
-          }
-        }
-
-        resultEl.classList.remove("hidden");
-      }
-
-      form.addEventListener("submit", async (event) => {
-        event.preventDefault();
-        const cleanTag = normalizeTag(input.value);
-        if (!cleanTag) {
-          showStatus("Entre un Tag joueur valide.", true);
-          return;
-        }
-
-        resultEl.classList.add("hidden");
-        showStatus("Récupération des statistiques en cours...");
-
-        try {
-          const url = `${API_BASE_URL}/api/player?tag=${encodeURIComponent(cleanTag)}`;
-          const response = await fetch(url);
-          const payload = await response.json();
-
-          if (!response.ok) {
-            showStatus(payload.error || "Erreur lors de la récupération des données.", true);
-            return;
-          }
-
-          hideStatus();
-          renderData(payload.profile, payload.battlelog, cleanTag);
-        } catch (err) {
-          showStatus(`Impossible de joindre l'API : ${err.message}`, true);
-        }
-      });
-    </script>
-  </body>
-</html>
